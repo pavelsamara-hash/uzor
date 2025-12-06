@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Живой Узор</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Noto+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sand-light: #f4e9d8;
+      --sand: #e0c9a6;
+      --indigo: #2e3a59;
+      --silver: #c5c9d9;
+      --shadow: rgba(46, 58, 89, 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      color: var(--indigo);
+      background-color: var(--sand-light);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+    }
+
+    .container {
+      width: min(95%, 1200px);
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 120px 0 60px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: var(--indigo);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto 30px;
+      color: #5a5a6a;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: var(--indigo);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 16px var(--shadow);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(46, 58, 89, 0.15);
+    }
+
+    /* Upload zone */
+    .upload-zone {
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 40px 20px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px var(--shadow);
+      text-align: center;
+    }
+
+    .upload-box {
+      border: 3px dashed var(--sand);
+      border-radius: 16px;
+      padding: 40px 20px;
+      margin: 20px 0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .upload-box:hover {
+      border-color: var(--indigo);
+      background: rgba(46, 58, 89, 0.03);
+    }
+
+    .upload-box.dragover {
+      background: rgba(224, 201, 166, 0.1);
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      color: var(--indigo);
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    .status {
+      margin-top: 20px;
+      font-style: italic;
+      color: #777;
+    }
+
+    .result {
+      display: none;
+      margin-top: 40px;
+      padding: 30px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px var(--shadow);
+    }
+
+    .pattern-preview {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, var(--sand), #d4b894);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--indigo);
+      font-weight: 500;
+    }
+
+    .deep-btn {
+      margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2.2rem; }
+      .upload-zone { padding: 20px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="container">
+      <h1>Живой Узор</h1>
+      <p>Положите ладонь на песок.<br>Что сегодня просит быть увиденным?</p>
+      
+      <div class="upload-zone">
+        <div class="upload-box" id="drop-area">
+          <div class="upload-icon">🖼️</div>
+          <p><strong>Загрузите фото узора</strong></p>
+          <p style="font-size: 0.9rem; margin-top: 8px;">Или перетащите сюда</p>
+          <input type="file" id="file-input" accept="image/*">
+        </div>
+        <div class="status" id="status">Поддерживаются JPG, PNG (до 10 МБ)</div>
+      </div>
+
+      <div class="result" id="result">
+        <h2>Ваш узор возник 🌊</h2>
+        <div class="pattern-preview" id="preview">Спираль<br>с пустым центром</div>
+        <p id="interpretation">
+          Это — не «недостаток». Это — уважение к себе.<br>
+          Как сказала одна участница: <em>«Пустой центр — это не пустота. Это готовность принять то, что придёт»</em>.<br><br>
+          Сегодня — День Воды в вашем личном ритме.<br>
+          Время не решать. Время — вместить.
+        </p>
+        <a href="#" class="btn deep-btn" onclick="deepen(); return false;">🌀 Посмотреть глубже</a>
+      </div>
+    </div>
+  </header>
+
+  <script>
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const statusEl = document.getElementById('status');
+    const resultEl = document.getElementById('result');
+    const previewEl = document.getElementById('preview');
+    const interpretationEl = document.getElementById('interpretation');
+
+    // Открыть выбор файла при клике
+    dropArea.addEventListener('click', () => fileInput.click());
+
+    // Обработка выбора файла
+    fileInput.addEventListener('change', handleFiles);
+    
+    // Drag & drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+      dropArea.classList.add('dragover');
+    }
+
+    function unhighlight() {
+      dropArea.classList.remove('dragover');
+    }
+
+    function handleFiles(e) {
+      const files = e.target.files || e.dataTransfer.files;
+      if (files.length === 0) return;
+
+      const file = files[0];
+      if (!file.type.match('image.*')) {
+        statusEl.textContent = '⚠️ Пожалуйста, загрузите изображение (JPG/PNG)';
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        statusEl.textContent = '⚠️ Файл слишком большой (макс. 10 МБ)';
+        return;
+      }
+
+      statusEl.textContent = 'Анализирую узор…';
+      
+      // Имитация анализа (в реальном проекте — вызов Qwen API)
+      setTimeout(() => {
+        // Показ результата
+        previewEl.innerHTML = 'Спираль<br>с пустым центром';
+        interpretationEl.innerHTML = `
+          Это — не «недостаток». Это — уважение к себе.<br>
+          Как сказала одна участница: <em>«Пустой центр — это не пустота. Это готовность принять то, что придёт»</em>.<br><br>
+          Сегодня — День Воды в вашем личном ритме.<br>
+          Время не решать. Время — вместить.
+        `;
+        resultEl.style.display = 'block';
+        statusEl.textContent = '✅ Готово. Хотите глубже?';
+      }, 1500);
+    }
+
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      handleFiles({ target: { files } });
+    }
+
+    function deepen() {
+      alert('🌀 Погружение в центр…\n\nСкоро: фрактальное расширение —\nновый узор из ядра!');
+    }
+  </script>
+
+</body>
+</html>
